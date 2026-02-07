@@ -20,8 +20,6 @@ move_timer = 0
 real_food_count = 0
 fake_food_count = 0
 
-game_over_msg = "GAME OVER"
-game_info_msg = ""
 
 class GameInfo:
     def __init__(self, msg):
@@ -128,7 +126,6 @@ food = Food()
 fakeFood = FakeFood()
 clocker = Clocker()
 foodCount = FoodCount()
-msg = GameInfo(game_over_msg)
 
 while running:
     # poll for events
@@ -171,23 +168,34 @@ while running:
         # head is last element in snake parts
         head_x, head_y = snake.parts[-1]
         
+        #
+        if head_x < 0 or head_x >= screen_width or head_y < 0 or head_y >= screen_height:
+            print("GAME OVER - OUT OF RANGE")
+            print(f"FOOD {real_food_count} EA")
+            running = False
+        
         # check if head is on food
-        if (head_x, head_y) == food.position or (head_x, head_y) == fakeFood.position:
-            
-            if(food.position):
-                snake.update_length = True  # next move will not pop tail -> grow
-                real_food_count += 1
-                
-            elif(fakeFood.position):
-                msg
-                break
-            
-            
-            # respawn food (avoid spawning on snake body)
+        if (head_x, head_y) == food.position:
+            snake.update_length = True  # next move will not pop tail -> grow
+            real_food_count += 1
+
+            # respawn food, avoid spawning on snake body
             while True:
                 food = Food()
-                if food.position not in snake.parts:
+                
+                # recreate fake food
+                fakeFood = FakeFood()
+
+                if (food.position not in snake.parts and
+                    fakeFood.position not in snake.parts and
+                    food.position != fakeFood.position):
                     break
+
+        # check if head is on fake food
+        elif (head_x, head_y) == fakeFood.position:
+            print("GAME OVER")
+            print(f"FOOD {real_food_count} EA")
+            running = False
 
     snake.draw(screen)
     food.draw(screen)
