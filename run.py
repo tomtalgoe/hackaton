@@ -14,12 +14,33 @@ running = True
 dt = 0
 
 # game setup
-cell_size = 60
-move_delay = 100
+cell_size = 40
+move_delay = 50
 move_timer = 0
 real_food_count = 0
 fake_food_count = 0
 
+game_over_msg = "GAME OVER"
+game_info_msg = ""
+
+class GameInfo:
+    def __init__(self, msg):
+        self.msg = msg
+        
+    def draw(self, msg, screen):
+        font = pygame.font.SysFont(None, 100)
+        text = font.render(msg)
+        screen.blit(text, (cell_size// 2, cell_size// 2))
+
+class FoodCount:
+    def __init__(self):
+        self.real_food_count = real_food_count
+        
+    def draw(self, screen):
+        font = pygame.font.SysFont(None, 36)
+        text = font.render(f"Food Count: {real_food_count}", True, "red")
+        screen.blit(text, (0,0))
+    
 
 class Clocker:
     def __init__(self):
@@ -31,7 +52,15 @@ class Clocker:
         
         font = pygame.font.SysFont(None, 36)
         text = font.render(f"Play Time: {current_time // 1000}", True, "white")
-        screen.blit(text, (10, 10))
+        screen.blit(text, (0, 20))
+        
+class FakeFood:
+    def __init__(self):
+        self.position = (random.randint(0, screen_width // cell_size - 1) * cell_size,
+                         random.randint(0, screen_height // cell_size - 1) * cell_size)
+
+    def draw(self, screen):
+        pygame.draw.rect(screen, "red", (self.position[0], self.position[1], cell_size, cell_size))
 
 class Food:
     def __init__(self):
@@ -96,7 +125,10 @@ class Snake:
 # initialize game objects
 snake = Snake()
 food = Food()
+fakeFood = FakeFood()
 clocker = Clocker()
+foodCount = FoodCount()
+msg = GameInfo(game_over_msg)
 
 while running:
     # poll for events
@@ -134,10 +166,34 @@ while running:
     if move_timer >= move_delay:
         snake.move()
         move_timer = 0
+
+        # interact with food
+        # head is last element in snake parts
+        head_x, head_y = snake.parts[-1]
         
+        # check if head is on food
+        if (head_x, head_y) == food.position or fakeFood.position:
+            
+            if(food.position):
+                snake.update_length = True  # next move will not pop tail -> grow
+                real_food_count += 1
+                
+            elif(fakeFood.position):
+                msg
+                break
+            
+            
+            # respawn food (avoid spawning on snake body)
+            while True:
+                food = Food()
+                if food.position not in snake.parts:
+                    break
 
     snake.draw(screen)
     food.draw(screen)
+    fakeFood.draw(screen)
+    foodCount.draw(screen)
+    
     clocker.draw(screen)
 
     # pygame.draw.circle(screen, "red", snake, 40)
