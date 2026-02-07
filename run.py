@@ -172,7 +172,7 @@ while running:
         head_x, head_y = snake.parts[-1]
         
         # check if head is on food
-        if (head_x, head_y) == food.position or fakeFood.position:
+        if (head_x, head_y) == food.position or (head_x, head_y) == fakeFood.position:
             
             if(food.position):
                 snake.update_length = True  # next move will not pop tail -> grow
