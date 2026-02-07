@@ -14,8 +14,8 @@ running = True
 dt = 0
 
 # game setup
-cell_size = 40
-move_delay = 100  # milliseconds
+cell_size = 60
+move_delay = 100
 move_timer = 0
 real_food_count = 0
 fake_food_count = 0
@@ -93,6 +93,7 @@ class Snake:
         elif direction == "right" and self.direction != "left":
             self.direction = "right"
 
+# initialize game objects
 snake = Snake()
 food = Food()
 clocker = Clocker()
@@ -154,9 +155,7 @@ while running:
     # flip() the display to put your work on screen
     pygame.display.flip()
 
-    # limits FPS to 60
-    # dt is delta time in seconds since last frame, used for framerate-
-    # independent physics.
+    # clock tick is used to control how fast the screen updates
     dt = clock.tick(60) / 1000
 
 pygame.quit()
